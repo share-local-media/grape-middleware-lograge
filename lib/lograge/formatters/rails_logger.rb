@@ -6,6 +6,7 @@ module Lograge
       def call(data)
         lines = start_processing(data)
         lines << completed(data)
+        lines << ""
 
         lines.join("\n")
       end
@@ -37,7 +38,11 @@ module Lograge
         duration = data[:duration].round
 
         if data[:error]
-          "Error #{status} #{data[:error]} after #{duration}ms"
+          lines = ["Error #{status} #{data[:error]} after #{duration}ms"]
+          if data[:backtrace] && data[:backtrace].is_a?(Array)
+            lines += data[:backtrace].map { |bt| "  #{bt}" }
+          end
+          lines.join("\n")
         else
           lines = []
           additions = []
